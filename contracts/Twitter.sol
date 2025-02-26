@@ -12,9 +12,15 @@ contract Twitter {
         uint256 likes;
     }
 
+    uint16 constant MAX_TWEET_LENGTH = 200;
+    uint16 constant MIN_TWEET_LENGTH = 10;
     mapping (address => Tweet[]) public tweets;
 
     function createTweet(string memory  _tweets) public {
+
+        require(bytes(_tweets).length <= MAX_TWEET_LENGTH  , "Tweet is long !");
+        require(bytes(_tweets).length >= MIN_TWEET_LENGTH , "Tweet is so small !"  );
+        
         Tweet memory newTweet = Tweet ({
             author : msg.sender,
             content : _tweets,
