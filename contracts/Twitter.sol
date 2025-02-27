@@ -15,6 +15,7 @@ contract Twitter {
 
     // define struct
     struct Tweet{
+        uint256 id;
         address author;
         string content;
         uint256 timestamp;
@@ -49,12 +50,24 @@ contract Twitter {
         require(bytes(_tweets).length >= MIN_TWEET_LENGTH , "Tweet is so small !"  );
         
         Tweet memory newTweet = Tweet ({
+            id : tweets[msg.sender].length,
             author : msg.sender,
             content : _tweets,
             timestamp : block.timestamp,
             likes : 0
         });
         tweets[msg.sender].push(newTweet);
+    }
+
+    function likeTweet (address author , uint256 id) external{
+        require(tweets[author][id].id == id , "Tweet does not exist");
+        tweets[author][id].likes++;
+    }
+
+    function unLikeTweet(address author , uint256 id) external{
+       require(tweets[author][id].id == id , "Tweet does not exist");
+       require(tweets[author][id].likes > 0  , "Tweet like is empty");
+       tweets[author][id].likes--;
     }
 
     function getTweets(address _owner, uint _i) public view returns (Tweet memory)  {
