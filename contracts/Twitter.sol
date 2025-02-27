@@ -3,6 +3,15 @@
 pragma solidity ^0.8.26;
 
 contract Twitter {
+    address public owner;
+    bool public paused;
+    mapping (address => uint) public balance;
+    
+    constructor(){
+        owner = msg.sender;
+        paused = false;
+        balance[owner] = 1000;
+    }
 
     // define struct
     struct Tweet{
@@ -11,12 +20,22 @@ contract Twitter {
         uint256 timestamp;
         uint256 likes;
     }
-
+    
     uint16 constant MAX_TWEET_LENGTH = 200;
     uint16 constant MIN_TWEET_LENGTH = 10;
     mapping (address => Tweet[]) public tweets;
 
-    function createTweet(string memory  _tweets) public {
+    // implement modifiers
+    modifier  onlyOwner(){
+        require(msg.sender == owner, "you are not the owner !");
+        _;
+    }
+    modifier notPaused(){
+        require(!paused , "The contract is inActive!");
+        _;
+    }
+
+    function createTweet(string memory  _tweets) public notPaused onlyOwner {
 
         require(bytes(_tweets).length <= MAX_TWEET_LENGTH  , "Tweet is long !");
         require(bytes(_tweets).length >= MIN_TWEET_LENGTH , "Tweet is so small !"  );
