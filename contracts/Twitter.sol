@@ -21,8 +21,8 @@ contract Twitter {
         uint256 likes;
     }
     
-    uint16 constant MAX_TWEET_LENGTH = 200;
-    uint16 constant MIN_TWEET_LENGTH = 10;
+    uint16 public MAX_TWEET_LENGTH = 200;
+    uint16 public MIN_TWEET_LENGTH = 10;
     mapping (address => Tweet[]) public tweets;
 
     // implement modifiers
@@ -33,6 +33,14 @@ contract Twitter {
     modifier notPaused(){
         require(!paused , "The contract is inActive!");
         _;
+    }
+
+    function changeMaxTweetLenght(uint16 newTweetLenght) public onlyOwner{
+        MAX_TWEET_LENGTH = newTweetLenght;
+    }
+
+    function changeMinTweetLength(uint16 newTweetLength) public onlyOwner {
+        MIN_TWEET_LENGTH = newTweetLength;
     }
 
     function createTweet(string memory  _tweets) public notPaused onlyOwner {

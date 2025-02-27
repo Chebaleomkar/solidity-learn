@@ -1,2 +1,22 @@
-deps
-states
+# Node.js dependencies (if using Hardhat/Truffle)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Hardhat artifacts and cache
+artifacts/
+cache/
+coverage/
+typechain/
+
+# Foundry dependencies & state
+lib/
+out/
+broadcast/
+cache/
+deps/
+state/
+
+# Environment & secret files
+.env
+.env.local
