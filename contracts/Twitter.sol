@@ -26,6 +26,11 @@ contract Twitter {
     uint16 public MIN_TWEET_LENGTH = 10;
     mapping (address => Tweet[]) public tweets;
 
+    //Events
+    event NewTweetCreated(uint256 id , address author , string content ,uint256  timestamp);
+    event TweetLike(address liker , address tweetAuthor , uint256 tweetId , uint256 newLikeCount);
+    event TweetUnLike(address unLiker , address tweetAuthor , uint256 tweetId , uint256 likeCont);
+
     // implement modifiers
     modifier  onlyOwner(){
         require(msg.sender == owner, "you are not the owner !");
@@ -57,17 +62,21 @@ contract Twitter {
             likes : 0
         });
         tweets[msg.sender].push(newTweet);
+
+        emit NewTweetCreated(newTweet.id, newTweet.author, newTweet.content, newTweet.timestamp);
     }
 
     function likeTweet (address author , uint256 id) external{
         require(tweets[author][id].id == id , "Tweet does not exist");
         tweets[author][id].likes++;
+        emit TweetLike(msg.sender, author, id, tweets[author][id].likes );
     }
 
     function unLikeTweet(address author , uint256 id) external{
        require(tweets[author][id].id == id , "Tweet does not exist");
        require(tweets[author][id].likes > 0  , "Tweet like is empty");
        tweets[author][id].likes--;
+       emit TweetUnLike(msg.sender, author, id, tweets[author][id].likes);
     }
 
     function getTweets(address _owner, uint _i) public view returns (Tweet memory)  {
