@@ -2,17 +2,15 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-contract Twitter {
-    address public owner;
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract Twitter is Ownable {
+    
+    constructor() Ownable(msg.sender) {}
+
     bool public paused;
     mapping (address => uint) public balance;
     
-    constructor(){
-        owner = msg.sender;
-        paused = false;
-        balance[owner] = 1000;
-    }
-
     // define struct
     struct Tweet{
         uint256 id;
@@ -32,10 +30,7 @@ contract Twitter {
     event TweetUnLike(address unLiker , address tweetAuthor , uint256 tweetId , uint256 likeCont);
 
     // implement modifiers
-    modifier  onlyOwner(){
-        require(msg.sender == owner, "you are not the owner !");
-        _;
-    }
+
     modifier notPaused(){
         require(!paused , "The contract is inActive!");
         _;
