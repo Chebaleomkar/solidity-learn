@@ -14,7 +14,7 @@ contract Profile{
         profiles[msg.sender] = UserProfile(_displayName , _bio);
     }
 
-    function getProfile(address _user)public view returns(UserProfile memory){
+    function getProfile(address _user)external view returns(UserProfile memory){
         return profiles[_user];
     }
 

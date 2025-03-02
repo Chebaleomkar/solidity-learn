@@ -1,12 +1,25 @@
 
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
-
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+interface IProfile {
+    struct UserProfile{
+        string displayName;
+        string bio;
+    }
+
+    function getProfile(address _user) external  view returns(UserProfile memory);
+    function setProfile(string memory _displayName , string memory _bio) external;
+}
+
 contract Twitter is Ownable {
-    
-    constructor() Ownable(msg.sender) {}
+    // define the address of the profile contract 
+     IProfile public profileContract;
+
+    constructor(address _profileContract) Ownable(msg.sender) {
+        profileContract = IProfile(_profileContract);
+    }
 
     bool public paused;
     mapping (address => uint) public balance;
@@ -36,15 +49,30 @@ contract Twitter is Ownable {
         _;
     }
 
-    function changeMaxTweetLenght(uint16 newTweetLenght) public onlyOwner{
+    modifier  onlyRegistere(){
+        IProfile.UserProfile memory userProfileTemp = profileContract.getProfile(msg.sender);
+        require(bytes(userProfileTemp.displayName).length > 0 , "USER NOT REGISTERED !" );
+        require(bytes(userProfileTemp.bio).length >0 , "USER BIO REQUIRED");
+        _;
+    }
+    function getProfileContractAddress() public view returns (address) {
+    return address(profileContract);
+}
+
+
+    function changeMaxTweetLenght(uint16 newTweetLenght) public onlyRegistere{
         MAX_TWEET_LENGTH = newTweetLenght;
     }
 
-    function changeMinTweetLength(uint16 newTweetLength) public onlyOwner {
+    function changeMinTweetLength(uint16 newTweetLength) public onlyRegistere {
         MIN_TWEET_LENGTH = newTweetLength;
     }
 
-    function createTweet(string memory  _tweets) public notPaused onlyOwner {
+    function createUser(string memory _displayName , string memory _bio ) public {
+        profileContract.setProfile(_displayName, _bio);
+    }
+
+    function createTweet(string memory  _tweets) public onlyRegistere {
 
         require(bytes(_tweets).length <= MAX_TWEET_LENGTH  , "Tweet is long !");
         require(bytes(_tweets).length >= MIN_TWEET_LENGTH , "Tweet is so small !"  );
@@ -61,13 +89,13 @@ contract Twitter is Ownable {
         emit NewTweetCreated(newTweet.id, newTweet.author, newTweet.content, newTweet.timestamp);
     }
 
-    function likeTweet (address author , uint256 id) external{
+    function likeTweet (address author , uint256 id) external onlyRegistere{
         require(tweets[author][id].id == id , "Tweet does not exist");
         tweets[author][id].likes++;
         emit TweetLike(msg.sender, author, id, tweets[author][id].likes );
     }
 
-    function unLikeTweet(address author , uint256 id) external{
+    function unLikeTweet(address author , uint256 id) external onlyRegistere{
        require(tweets[author][id].id == id , "Tweet does not exist");
        require(tweets[author][id].likes > 0  , "Tweet like is empty");
        tweets[author][id].likes--;
